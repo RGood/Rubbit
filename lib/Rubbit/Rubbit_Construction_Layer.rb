@@ -145,17 +145,19 @@ class Rubbit_Poster
 		return false
 	end
 
-	def submit(sr,title,url=nil,text=nil,kind='self',resubmit=false,save=false,sendreplies=true)
+	def submit(sr,title,url=nil,text=nil,kind='self',resubmit=nil,save=false,sendreplies=true)
 		params = {}
 		params['api_type']='json'
-		params['captcha']=nil
 		params['extension']=nil
-		params['iden']=nil
 		params['kind']=kind
 		params['resubmit']=resubmit
-		params['save']=save
+		if(save)
+			params['save']=true
+		end
 		params['sendreplies']=sendreplies
+		params['id']='#newlink'
 		params['sr']=sr
+		params['r']=sr
 		params['text']=text
 		params['title']=title
 		params['uh']=get_modhash

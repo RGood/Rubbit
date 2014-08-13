@@ -35,7 +35,7 @@ class Subreddit
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/controversial.json',limit)
 	end
 
-	def submit(title,url=nil,text=nil,kind='text',resubmit=false,save=false,sendreplies=true)
+	def submit(title,url=nil,text=nil,kind='self',resubmit=false,save=false,sendreplies=true)
 		return Rubbit_Poster.instance.submit(@display_name,title,url,text,kind,resubmit,save,sendreplies)
 	end
 end
