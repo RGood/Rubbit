@@ -141,4 +141,11 @@ class Rubbit
 		end
 		return nil
 	end
+
+	def comment(text,parent)
+		if(@me!=nil)
+			return @rubbut_poster.comment(text,parent)
+		end
+		return nil
+	end
 end

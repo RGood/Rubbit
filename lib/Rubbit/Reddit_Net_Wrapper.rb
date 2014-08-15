@@ -94,7 +94,7 @@ class Reddit_Net_Wrapper
 			}
 
 			if(res.code=='302' or res.code=='301')
-				res = make_request(request_type,res['location'],true)
+				res = make_request(request_type,res['location'],params,true)
 			elsif(res['set-cookie']!=nil)
 				@cookie=res['set-cookie']
 			end

@@ -46,7 +46,7 @@ class Rubbit_Object_Builder
 	def build_submission(link)
 		response = Reddit_Net_Wrapper.instance.make_request('get',link.to_s+".json",{})
 		if(response.code=='200')
-			json = JSON.parse(response.body)
+			json = JSON.parse(response.body,:max_nesting=>100)
 			if(json['kind']=='t1')
 				return Comment.new(json)
 			elsif(json['kind']=='t3')
@@ -57,6 +57,15 @@ class Rubbit_Object_Builder
 				return nil
 			end
 		end
+	end
+
+	def get_comments(link)
+		response = Reddit_Net_Wrapper.instance.make_request('get',link.to_s+".json",{})
+		if(response.code=='200')
+			json = JSON.parse(response.body,:max_nesting=>100)
+			return Listing.new(json[1])
+		end
+		return
 	end
 
 	private_class_method :new
@@ -151,9 +160,7 @@ class Rubbit_Poster
 		params['extension']=nil
 		params['kind']=kind
 		params['resubmit']=resubmit
-		if(save)
-			params['save']=true
-		end
+		params['save']=save
 		params['sendreplies']=sendreplies
 		params['id']='#newlink'
 		params['sr']=sr
@@ -163,11 +170,27 @@ class Rubbit_Poster
 		params['uh']=get_modhash
 		params['url']=url
 
-		puts params
-
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/submit/',params)
 		return JSON.parse(response.body)
+	end
 
+	def comment(text,parent)
+		params = {}
+		params['text']=text
+		params['thing_id']=parent
+		params['uh']=get_modhash
+		params['renderstylel']='html'
+
+		puts params
+
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/comment',params)
+
+		puts response.code
+
+		if(response.code=='200')
+			return true
+		end
+		return false
 	end
 
 	def get_modhash

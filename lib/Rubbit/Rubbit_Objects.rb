@@ -38,6 +38,14 @@ class Subreddit
 	def submit(title,url=nil,text=nil,kind='self',resubmit=false,save=false,sendreplies=true)
 		return Rubbit_Poster.instance.submit(@display_name,title,url,text,kind,resubmit,save,sendreplies)
 	end
+
+	def submit_text(title,text=nil,save=false,sendreplies=true)
+		return submit(title,nil,text,'self',false,save,sendreplies)
+	end
+
+	def submit_link(title,url,save=false,sendreplies=true)
+		return submit(title,url,nil,'link',false,save,sendreplies)
+	end
 end
 
 class Redditor
@@ -71,12 +79,14 @@ class ContentGenerator
 	@source = nil
 	@data = nil
 	@after = nil
+	@modhash = nil
 	def initialize(source,limit=100,after='')
 		@source = source
 		@limit = limit
 		@count = 0
 		@data = []
 		@after = after
+		@modhash = nil
 	end
 
 	def each
@@ -159,6 +169,23 @@ class ContentGenerator
 	def length
 		return @data.length
 	end
+
+	def next
+		listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+1.to_s+"&after="+@after+"&count="+@count.to_s)
+		if(listing.children[listing.children.length-1]!=nil)
+			@after = listing.children[listing.children.length-1].name
+		else
+			@after = nil
+		end
+		if(@after == nil)
+			@data+=[]
+			return nil
+		else
+			@data += listing.children
+			@count+= listing.children.length
+			return listing.children[0]
+		end
+	end
 end
 
 class Comment
@@ -171,10 +198,16 @@ class Comment
 			end
 		end
 	end
+
+	def reply(text)
+		Rubbit_Poster.instance.comment(text,@name)
+	end
 end
 
 class Post
+	@comments = nil
 	def initialize(json)
+		@comments = nil
 		if(json['kind']=='t3')
 			data = json['data']
 			data.each_key do |k|
@@ -182,6 +215,16 @@ class Post
 				self.send("#{k}=",data[k])
 			end
 		end
+	end
+	def reply(text)
+		return Rubbit_Poster.instance.comment(text,@name)
+	end
+
+	def comments
+		if(@comments==nil)
+			@comments = Rubbit_Object_Builder.instance.get_comments('http://www.reddit.com'+@permalink).children
+		end
+		return @comments
 	end
 end
 
@@ -194,6 +237,9 @@ class Message
 				self.send("#{k}=",data[k])
 			end
 		end
+	end
+	def reply(text)
+		Rubbit_Poster.instance.comment(text,@name)
 	end
 end
 
