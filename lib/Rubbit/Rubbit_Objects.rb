@@ -200,7 +200,19 @@ class Comment
 	end
 
 	def reply(text)
-		Rubbit_Poster.instance.comment(text,@name)
+		Rubbit_Poster.instance.comment(@name,text)
+	end
+
+	def delete
+		Rubbit_Poster.instance.delete(@name)
+	end
+
+	def edit(text)
+		Rubbit_Poster.instance.edit(@name,text)
+	end
+
+	def hide
+		Rubbit_Poster.instance.hide(@name)
 	end
 end
 
@@ -217,7 +229,7 @@ class Post
 		end
 	end
 	def reply(text)
-		return Rubbit_Poster.instance.comment(text,@name)
+		return Rubbit_Poster.instance.comment(@name,text)
 	end
 
 	def comments
@@ -225,6 +237,22 @@ class Post
 			@comments = Rubbit_Object_Builder.instance.get_comments('http://www.reddit.com'+@permalink).children
 		end
 		return @comments
+	end
+
+	def delete
+		Rubbit_Poster.instance.delete(@name)
+	end
+
+	def edit(text)
+		Rubbit_Poster.instance.edit(@name,text)
+	end
+
+	def hide
+		Rubbit_Poster.instance.hide(@name)
+	end
+
+	def mark_nsfw
+		Rubbit_Poster.instance.mark_nsfw(@name)
 	end
 end
 

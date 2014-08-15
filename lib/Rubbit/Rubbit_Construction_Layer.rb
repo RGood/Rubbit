@@ -174,18 +174,68 @@ class Rubbit_Poster
 		return JSON.parse(response.body)
 	end
 
-	def comment(text,parent)
+	def comment(parent,id)
 		params = {}
 		params['text']=text
 		params['thing_id']=parent
 		params['uh']=get_modhash
 		params['renderstylel']='html'
 
-		puts params
-
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/comment',params)
 
-		puts response.code
+		if(response.code=='200')
+			return true
+		end
+		return false
+	end
+
+	def hide(id)
+		params = {}
+		params['id'] = id
+		params['uh']=get_modhash
+		
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/hide',params)
+
+		if(response.code=='200')
+			return true
+		end
+		return false
+	end
+
+	def delete(id)
+		params = {}
+		params['id'] = id
+		params['uh']=get_modhash
+		
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/del',params)
+
+		if(response.code=='200')
+			return true
+		end
+		return false
+	end
+
+	def edit(id,text)
+		params = {}
+		params['api_type']='json'
+		params['text']=text
+		params['id'] = id
+		params['uh']=get_modhash
+		
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/editusertext',params)
+
+		if(response.code=='200')
+			return true
+		end
+		return false
+	end
+
+	def mark_nsfw(id)
+		params = {}
+		params['id'] = id
+		params['uh']=get_modhash
+		
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/marknsfw',params)
 
 		if(response.code=='200')
 			return true
