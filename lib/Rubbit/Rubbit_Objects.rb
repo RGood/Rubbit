@@ -46,12 +46,26 @@ class Subreddit
 	def submit_link(title,url,save=false,sendreplies=true)
 		return submit(title,url,nil,'link',false,save,sendreplies)
 	end
+
+	def get_contributors(limit=100)
+		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/contributors.json',limit)
+	end
+
+	def get_banned(limit=100)
+		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/banned.json',limit)
+	end
 end
 
 class Redditor
 	def initialize(json)
 		if(json['kind']=='t2')
 			data = json['data']
+			data.each_key do |k|
+				self.class.module_eval {attr_accessor(k)}
+				self.send("#{k}=",data[k])
+			end
+		elsif(json['id'][0..2]=='t2_')
+			data = json
 			data.each_key do |k|
 				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
@@ -69,6 +83,14 @@ class Redditor
 
 	def get_submitted(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/submitted.json',limit)
+	end
+
+	def rebuild
+		rebuilt_user = Rubbit_Object_Builder.instance.build_user(@name)
+		rebuilt_user.instance_variables.each do |attr_name|
+			self.class.module_eval{attr_accessor(attr_name[1..-1])}
+			self.send("#{attr_name[1..-1]}=",rebuilt_user.instance_variable_get(attr_name))
+		end
 	end
 end
 
@@ -93,30 +115,14 @@ class ContentGenerator
 		index = 0
 		if(@limit!=nil)
 			listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
-			if(listing.children[listing.children.length-1]!=nil)
-				@after = listing.children[listing.children.length-1].name
-			else
-				@after = nil
-			end
-			if(@after == nil)
-				@data+=[]
-			else
-				@data += listing.children
-				@count += listing.children.length
-			end
+			@after = listing.after
+			@data += listing.children
+			@count += listing.children.length
 		else
 			listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+100.to_s+"&after="+@after+"&count="+@count.to_s)
-			if(listing.children[listing.children.length-1]!=nil)
-				@after = listing.children[listing.children.length-1].name
-			else
-				@after = nil
-			end
-			if(@after == nil)
-				@data+=[]
-			else
-				@data += listing.children
-				@count+= listing.children.length
-			end
+			@after = listing.after
+			@data += listing.children
+			@count+= listing.children.length
 		end
 		
 		while(index<@data.length)
@@ -124,39 +130,23 @@ class ContentGenerator
 			index+=1
 			if(index==@data.length)
 				if(@after==nil)
-					@after=''
+					break
 				end
 				if(@limit!=nil)
 					if(@limit-@count>0)
 						listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
-						if(listing.children[listing.children.length-1]!=nil)
-							@after = listing.children[listing.children.length-1].name
-						else
-							@after = nil
-						end
-						if(@after == nil)
-							@data+=[]
-						else
-							@data += listing.children
-							@count += listing.children.length
-						end
+						@after = listing.after
+						@data += listing.children
+						@count += listing.children.length
 					else
 						@data += []
 					end
 				else
 					listing = Rubbit_Object_Builder.instance.build_listing(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
 					puts(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
-					if(listing.children[listing.children.length-1]!=nil)
-						@after = listing.children[listing.children.length-1].name
-					else
-						@after = nil
-					end
-					if(@after == nil)
-						@data+=[]
-					else
-						@data += listing.children
-						@count += listing.children.length
-					end
+					@after = listing.after
+					@data += listing.children
+					@count += listing.children.length
 				end
 			end
 		end
@@ -164,10 +154,6 @@ class ContentGenerator
 
 	def [](i)
 		return @data[i]
-	end
-
-	def length
-		return @data.length
 	end
 
 	def next
@@ -186,6 +172,10 @@ class ContentGenerator
 			return listing.children[0]
 		end
 	end
+
+	def get_raw
+		return @data
+	end
 end
 
 class Comment
@@ -195,6 +185,18 @@ class Comment
 			data.each_key do |k|
 				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
+			end
+			children = []
+			if(@replies!= nil and @replies['data']!=nil and @replies['data']['children']!=nil)
+				@replies['data']['children'].each do |c|
+					if(c!=nil)
+						children += [Comment.new(c)]
+					end
+				end
+				@replies = children
+			end
+			if(@replies=="")
+				replies = nil
 			end
 		end
 	end
@@ -232,7 +234,7 @@ class Post
 		return Rubbit_Poster.instance.comment(@name,text)
 	end
 
-	def comments
+	def replies
 		if(@comments==nil)
 			@comments = Rubbit_Object_Builder.instance.get_comments('http://www.reddit.com'+@permalink).children
 		end
@@ -282,18 +284,17 @@ class Listing
 			end
 			children_objects = []
 			@children.each do |c|
-				case c['kind']
-				when 't1'
+				if(c['kind'] == 't1' or c['id'][0..2]=='t1_')
 					children_objects += [Comment.new(c)]
-				when 't2'
+				elsif(c['kind'] == 't2' or c['id'][0..2]=='t2_')
 					children_objects += [Redditor.new(c)]
-				when 't3'
+				elsif(c['kind'] == 't3' or c['id'][0..2]=='t3_')
 					children_objects += [Post.new(c)]
-				when 't4'
+				elsif(c['kind'] == 't4' or c['id'][0..2]=='t4_')
 					children_objects += [Message.new(c)]
-				when 't5'
+				elsif(c['kind'] == 't5' or c['id'][0..2]=='t5_')
 					children_objects += [Subreddit.new(c)]
-				when 'Listing'
+				elsif(c['kind'] == 'Listing')
 					children_objects += [Listing.new(c)]
 				end
 			end

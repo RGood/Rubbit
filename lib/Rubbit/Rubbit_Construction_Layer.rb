@@ -41,6 +41,7 @@ class Rubbit_Object_Builder
 		if(response.code=='200')
 			return Listing.new(JSON.parse(response.body,:max_nesting => 100))
 		end
+		return nil
 	end
 
 	def build_submission(link)
