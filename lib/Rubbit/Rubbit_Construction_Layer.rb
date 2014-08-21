@@ -1,6 +1,6 @@
 require 'Rubbit/Rubbit_Objects'
 require 'Rubbit/Reddit_Net_Wrapper'
-require 'Rubbit_Exceptions'
+require 'Rubbit/Rubbit_Exceptions'
 require 'json'
 
 class Rubbit_Object_Builder

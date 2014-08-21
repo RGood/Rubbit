@@ -9,7 +9,8 @@ Gem::Specification.new do |s|
   s.files         = ["lib/Rubbit.rb",
 			"lib/Rubbit/Reddit_Net_Wrapper.rb",
 			"lib/Rubbit/Rubbit_Objects.rb",
-			"lib/Rubbit/Rubbit_Construction_Layer.rb"]
+			"lib/Rubbit/Rubbit_Construction_Layer.rb",
+			"lib/Rubbit/Rubbit_Exceptions.rb"]
   s.homepage      = 'http://rubygems.org/gems/rubbit'
   s.license       = 'GPL v3'
 end
