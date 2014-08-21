@@ -113,16 +113,20 @@ class ContentGenerator
 
 	def each
 		index = 0
-		if(@limit!=nil)
-			listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
-			@after = listing.after
-			@data += listing.children
-			@count += listing.children.length
-		else
-			listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+100.to_s+"&after="+@after+"&count="+@count.to_s)
-			@after = listing.after
-			@data += listing.children
-			@count+= listing.children.length
+		if(@data.length==0)
+			if(@limit!=nil)
+				if(@limit-@count>0)
+					listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
+					@after = listing.after
+					@data += listing.children
+					@count += listing.children.length
+				end
+			else
+				listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+100.to_s+"&after="+@after+"&count="+@count.to_s)
+				@after = listing.after
+				@data += listing.children
+				@count+= listing.children.length
+			end
 		end
 		
 		while(index<@data.length)
@@ -138,8 +142,6 @@ class ContentGenerator
 						@after = listing.after
 						@data += listing.children
 						@count += listing.children.length
-					else
-						@data += []
 					end
 				else
 					listing = Rubbit_Object_Builder.instance.build_listing(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
@@ -171,10 +173,6 @@ class ContentGenerator
 			@count+= listing.children.length
 			return listing.children[0]
 		end
-	end
-
-	def get_raw
-		return @data
 	end
 end
 
@@ -284,6 +282,9 @@ class Listing
 			end
 			children_objects = []
 			@children.each do |c|
+				if(c['id']==nil)
+					c['id']='   '
+				end
 				if(c['kind'] == 't1' or c['id'][0..2]=='t1_')
 					children_objects += [Comment.new(c)]
 				elsif(c['kind'] == 't2' or c['id'][0..2]=='t2_')
