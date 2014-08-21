@@ -108,7 +108,6 @@ class ContentGenerator
 		@count = 0
 		@data = []
 		@after = after
-		@modhash = nil
 	end
 
 	def each
