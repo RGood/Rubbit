@@ -39,7 +39,7 @@ class Rubbit_Object_Builder
 		if(response.code=='200')
 			return Redditor.new(JSON.parse(response.body))
 		else
-			raise InvalidUserException
+			raise InvalidUserException, "User unable to be retrieved"
 		end
 	end
 
@@ -62,7 +62,7 @@ class Rubbit_Object_Builder
 			elsif(json['kind']=='t4')
 				return Message.new(json)
 			else
-				raise InvalidSubmissionException
+				raise InvalidSubmissionException, "Could not get submission"
 			end
 		end
 	end
@@ -75,7 +75,7 @@ class Rubbit_Object_Builder
 		elsif(response.code=='403')
 			raise PrivateDataException
 		else
-			raise InvalidSubmissionException
+			raise InvalidSubmissionException, "Could not get comment"
 		end
 	end
 
@@ -116,7 +116,7 @@ class Rubbit_Poster
 			@logged_in_user = user.name
 			return user
 		else
-			raise InvalidUserException
+			raise InvalidUserException, "Could not validate login credentials"
 		end
 	end
 
