@@ -128,10 +128,7 @@ class Rubbit_Poster
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/clear_sessions/',params)
 
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def delete_user(user,passwd,message,confirm)
@@ -143,10 +140,7 @@ class Rubbit_Poster
 		params['uh']=get_modhash
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/delete_user/',params)
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def update(email,newpass,curpass,verify,verpass)
@@ -160,10 +154,7 @@ class Rubbit_Poster
 		params['uh']=get_modhash
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/update/',params)
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def submit(sr,title,url=nil,text=nil,kind='self',resubmit=nil,save=false,sendreplies=true)
@@ -195,10 +186,7 @@ class Rubbit_Poster
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/comment',params)
 
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def hide(id)
@@ -208,10 +196,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/hide',params)
 
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def delete(id)
@@ -221,10 +206,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/del',params)
 
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def edit(id,text)
@@ -236,10 +218,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/editusertext',params)
 
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def mark_nsfw(id)
@@ -249,10 +228,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/marknsfw',params)
 
-		if(response.code=='200')
-			return true
-		end
-		return false
+		return response.body
 	end
 
 	def get_modhash
