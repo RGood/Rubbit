@@ -57,7 +57,7 @@ class Reddit_Net_Wrapper
 			@reset = (Time.now - @first_request).to_i
 		end
 
-		puts url
+		#puts url
 
 		case request_type.downcase
 		when 'post'

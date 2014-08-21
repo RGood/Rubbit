@@ -1,5 +1,6 @@
 require 'Rubbit/Rubbit_Objects'
 require 'Rubbit/Reddit_Net_Wrapper'
+require 'Rubbit_Exceptions'
 require 'json'
 
 class Rubbit_Object_Builder
@@ -26,6 +27,10 @@ class Rubbit_Object_Builder
 		puts response.code
 		if(response.code=='200')
 			return Subreddit.new(JSON.parse(response.body))
+		elsif(response.code=='403')
+			raise PrivateDataException, "/r/" + display_name + " is a private subreddit."
+		elsif(response.code=='404')
+			raise InvalidSubredditException, "/r/" + display_name + " does not exist."
 		end
 	end
 
@@ -33,6 +38,8 @@ class Rubbit_Object_Builder
 		response = Reddit_Net_Wrapper.instance.make_request('get','http://www.reddit.com/user/'+user.to_s+'/about.json',{})
 		if(response.code=='200')
 			return Redditor.new(JSON.parse(response.body))
+		else
+			raise InvalidUserException
 		end
 	end
 
@@ -55,7 +62,7 @@ class Rubbit_Object_Builder
 			elsif(json['kind']=='t4')
 				return Message.new(json)
 			else
-				return nil
+				raise InvalidSubmissionException
 			end
 		end
 	end
@@ -65,8 +72,11 @@ class Rubbit_Object_Builder
 		if(response.code=='200')
 			json = JSON.parse(response.body,:max_nesting=>100)
 			return Listing.new(json[1])
+		elsif(response.code=='403')
+			raise PrivateDataException
+		else
+			raise InvalidSubmissionException
 		end
-		return
 	end
 
 	private_class_method :new
@@ -105,8 +115,9 @@ class Rubbit_Poster
 			user = Rubbit_Object_Builder.instance.build_user('the1rgood')
 			@logged_in_user = user.name
 			return user
+		else
+			raise InvalidUserException
 		end
-		return nil
 	end
 
 	def clear_sessions(curpass)

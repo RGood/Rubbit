@@ -173,6 +173,10 @@ class ContentGenerator
 			return listing.children[0]
 		end
 	end
+
+	def length
+		return @data.length
+	end
 end
 
 class Comment
