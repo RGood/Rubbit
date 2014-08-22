@@ -112,7 +112,7 @@ class Rubbit_Poster
 		login_status = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/login/',params).code
 
 		if(login_status=='200')
-			user = Rubbit_Object_Builder.instance.build_user('the1rgood')
+			user = Rubbit_Object_Builder.instance.build_user(user)
 			@logged_in_user = user.name
 			return user
 		else
