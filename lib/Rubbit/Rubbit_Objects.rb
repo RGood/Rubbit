@@ -1,4 +1,5 @@
 require 'Rubbit/Reddit_Net_Wrapper'
+require 'Rubbit/Rubbit_Exceptions'
 
 class Subreddit
 	def initialize(json)
@@ -73,16 +74,16 @@ class Redditor
 		end
 	end
 
-	def get_overview(limit=100)
-		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/.json',limit)
+	def get_overview(limit=100,sort='new')
+		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/.json?sort='+sort,limit)
 	end
 
-	def get_comments(limit=100)
-		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/comments.json',limit)
+	def get_comments(limit=100,sort='new')
+		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/comments.json?sort='+sort,limit)
 	end
 
-	def get_submitted(limit=100)
-		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/submitted.json',limit)
+	def get_submitted(limit=100,sort='new')
+		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/submitted.json?sort='+sort,limit)
 	end
 
 	def rebuild

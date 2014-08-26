@@ -177,7 +177,7 @@ class Rubbit_Poster
 		return JSON.parse(response.body)
 	end
 
-	def comment(parent,id)
+	def comment(parent,text)
 		params = {}
 		params['text']=text
 		params['thing_id']=parent
