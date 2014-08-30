@@ -20,6 +20,10 @@ class Rubbit
 		return @object_builder.build_user(user)
 	end
 
+	def set_request_period(period)
+		@object_builder.set_request_period(period)
+	end
+
 	def login(user=nil,passwd=nil)
 		if(user==nil)
 			print('Enter username: ')
@@ -114,6 +118,10 @@ class Rubbit
 		return @object_builder.build_submission(link)
 	end
 
+	def get_comments(subreddit,limit)
+		return @object_builder.get_comments('http://www.reddit.com/r/'+subreddit+'/comments.json',limit)
+	end
+
 	def get_inbox(limit=100)
 		if(me!=nil)
 			return ContentGenerator.new('http://www.reddit.com/message/inbox.json',limit)
@@ -126,6 +134,14 @@ class Rubbit
 			return ContentGenerator.new('http://www.reddit.com/message/unread.json',limit)
 		end
 		return nil
+	end
+
+	def friend(user)
+		return @rubbit_poster.friend('friend',user,@me.name)
+	end
+
+	def unfriend(user)
+		return @rubbut_poster.unfriend('friend',user,@me.name)
 	end
 
 	def get_sent(limit=100)

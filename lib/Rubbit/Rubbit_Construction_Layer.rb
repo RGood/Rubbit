@@ -22,6 +22,10 @@ class Rubbit_Object_Builder
 		Reddit_Net_Wrapper.instance(net_name)
 	end
 
+	def set_request_period(period)
+		return Reddit_Net_Wrapper.instance.set_reset_period(period)
+	end
+
 	def build_subreddit(display_name)
 		response = Reddit_Net_Wrapper.instance.make_request('get','http://www.reddit.com/r/'+display_name.to_s+"/about.json",{})
 		puts response.code
@@ -67,16 +71,8 @@ class Rubbit_Object_Builder
 		end
 	end
 
-	def get_comments(link)
-		response = Reddit_Net_Wrapper.instance.make_request('get',link.to_s+".json",{})
-		if(response.code=='200')
-			json = JSON.parse(response.body,:max_nesting=>100)
-			return Listing.new(json[1])
-		elsif(response.code=='403')
-			raise PrivateDataException
-		else
-			raise InvalidSubmissionException, "Could not get comment"
-		end
+	def get_comments(link,limit)
+		return ContentGenerator.new(link,limit)
 	end
 
 	private_class_method :new
@@ -227,6 +223,54 @@ class Rubbit_Poster
 		params['uh']=get_modhash
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/marknsfw',params)
+
+		return response.body
+	end
+
+	def friend(type,user,container,info=nil,duration=nil)
+		params = {}
+		params['api_type']='json'
+		params['type']=type
+		params['name']=user
+		params['modhash']=get_modhash
+		case type
+		when 'friend'
+			params['note']=info
+			params['container']=container
+		when 'moderator'
+			params['container']=container
+			params['permissions']=info
+		when 'moderator_invite'
+			params['container']=container
+			params['permissions']=info
+		when 'contributor'
+			params['container']=container
+		when 'banned'
+			params['container']=container
+			params['note']=info
+			params['duration']=duration
+		when 'wikibanned'
+			params['container']=container
+			params['note']=info
+			params['duration']=duration
+		when 'wikicontributor'
+			params['container']=container
+		end
+
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/friend',params)
+
+		return response.body
+	end
+
+	def unfriend(type,user,container)
+		params = {}
+		params['api_type']='json'
+		params['type']=type
+		params['name']=user
+		params['modhash']=get_modhash
+		params['container']=container
+
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/unfriend',params)
 
 		return response.body
 	end

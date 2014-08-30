@@ -55,6 +55,34 @@ class Subreddit
 	def get_banned(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/banned.json',limit)
 	end
+
+	def get_moderators(limit=100)
+		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/moderators.json',limit)
+	end
+
+	def add_moderator(name,permissions)
+		return Rubbit_Poster.instance.friend('moderator_invite',name,@display_name,permissions)
+	end
+
+	def add_contributor(name)
+		return Rubbit_Poster.instance.friend('contributor',name,@display_name)
+	end
+
+	def ban(name,note,duration)
+		return Rubbit_Poster.instance.friend('banned',name,@display_name,note,duration)
+	end
+
+	def remove_moderator(name)
+		return Rubbit_Poster.instance.unfriend('moderator',name,@display_name)
+	end
+
+	def remove_contributor(name)
+		return Rubbit_Poster.instance.unfriend('contributor',name,@display_name)
+	end
+
+	def unban(name)
+		return Rubbit_Poster.instance.unfriend('ban',name,@display_name)
+	end
 end
 
 class Redditor

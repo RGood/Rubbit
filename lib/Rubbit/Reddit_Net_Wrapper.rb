@@ -10,6 +10,8 @@ class Reddit_Net_Wrapper
 	@first_request = nil
 	@user_agent = nil
 
+	@reset_timer = nil
+
 	@cookie = nil
 
 	@@instance = nil
@@ -25,11 +27,22 @@ class Reddit_Net_Wrapper
 		return @@instance
 	end
 
+	def set_reset_period(period=60)
+		if(period%2!=0 or period>60 or period<2)
+			return false
+		else
+			@reset_timer = period
+			return true
+		end
+
+	end
+
 	def initialize(user)
 		@used = 0
 		@remaining = 30
 		@reset = 60
 		@first_request = 0
+		@reset_timer = 60
 		@user_agent = 'Rubbit/1.0 Ruby RAW by The1RGood USED BY: '
 		@user_agent+=user
 
@@ -39,19 +52,18 @@ class Reddit_Net_Wrapper
 	def make_request(request_type,url,params,redirect=false)
 		uri = URI(url)
 
-		if(@remaining==0)
-			while((Time.now-@first_request).to_i < 60)
-			end
-		end
-
-		if((Time.now - @first_request).to_i > 60)
+		if((Time.now - @first_request).to_i > @reset_timer)
 			@used = 0
-			@remaining = 30
-			@reset = 60
+			@remaining = @reset_timer/2
+			@reset = @reset_timer
 			@first_request = Time.now
 		end
 
 		if(redirect==false)
+			if(@remaining==0)
+				while((Time.now-@first_request).to_i < @reset_timer)
+				end
+			end
 			@used += 1
 			@remaining -= 1
 			@reset = (Time.now - @first_request).to_i
