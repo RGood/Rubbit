@@ -186,23 +186,6 @@ class ContentGenerator
 		return @data[i]
 	end
 
-	def next
-		listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+1.to_s+"&after="+@after+"&count="+@count.to_s)
-		if(listing.children[listing.children.length-1]!=nil)
-			@after = listing.children[listing.children.length-1].name
-		else
-			@after = nil
-		end
-		if(@after == nil)
-			@data+=[]
-			return nil
-		else
-			@data += listing.children
-			@count+= listing.children.length
-			return listing.children[0]
-		end
-	end
-
 	def length
 		return @data.length
 	end
