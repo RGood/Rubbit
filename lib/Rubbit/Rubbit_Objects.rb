@@ -205,8 +205,20 @@ class ContentGenerator
 				end
 			end
 		end
-		@index+=1
-		return @data[@index-1]
+		to_return = @data[@index]
+		if(to_return!=nil)
+			@index+=1
+		end
+		return to_return
+	end
+
+	def prev
+		if(@index>1)
+			@index-=1
+			return @data[@index-1]
+		else
+			return nil
+		end
 	end
 
 	def reset_generator(i=0)
