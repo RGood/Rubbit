@@ -190,19 +190,18 @@ class ContentGenerator
 	def next
 		if(@index>=@data.length)
 			if(@limit!=nil)
-					if(@limit-@count>0)
-						listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
-						@after = listing.after
-						@data += listing.children
-						@count += listing.children.length
-					end
-				else
-					listing = Rubbit_Object_Builder.instance.build_listing(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
-					puts(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
+				if(@limit-@count>0)
+					listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
 					@after = listing.after
 					@data += listing.children
 					@count += listing.children.length
 				end
+			else
+				listing = Rubbit_Object_Builder.instance.build_listing(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
+				puts(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
+				@after = listing.after
+				@data += listing.children
+				@count += listing.children.length
 			end
 		end
 		to_return = @data[@index]
