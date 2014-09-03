@@ -131,16 +131,17 @@ class ContentGenerator
 	@data = nil
 	@after = nil
 	@modhash = nil
+	@index
 	def initialize(source,limit=100,after='')
 		@source = source
 		@limit = limit
 		@count = 0
 		@data = []
 		@after = after
+		@index = 0
 	end
 
 	def each
-		index = 0
 		if(@data.length==0)
 			if(@limit!=nil)
 				if(@limit-@count>0)
@@ -157,9 +158,9 @@ class ContentGenerator
 			end
 		end
 		
-		while(index<@data.length)
-			yield @data[index]
-			index+=1
+		while(@index<@data.length)
+			yield @data[@index]
+			@index+=1
 			if(index==@data.length)
 				if(@after==nil)
 					break
@@ -184,6 +185,32 @@ class ContentGenerator
 
 	def [](i)
 		return @data[i]
+	end
+
+	def next
+		if(@index>=@data.length)
+			if(@limit!=nil)
+					if(@limit-@count>0)
+						listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
+						@after = listing.after
+						@data += listing.children
+						@count += listing.children.length
+					end
+				else
+					listing = Rubbit_Object_Builder.instance.build_listing(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
+					puts(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
+					@after = listing.after
+					@data += listing.children
+					@count += listing.children.length
+				end
+			end
+		end
+		@index+=1
+		return @data[@index-1]
+	end
+
+	def reset_generator(i=0)
+		@index=i
 	end
 
 	def length
@@ -281,6 +308,7 @@ class Message
 			end
 		end
 	end
+
 	def reply(text)
 		Rubbit_Poster.instance.comment(text,@name)
 	end
