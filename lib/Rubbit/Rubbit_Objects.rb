@@ -161,7 +161,7 @@ class ContentGenerator
 		while(@index<@data.length)
 			yield @data[@index]
 			@index+=1
-			if(index==@data.length)
+			if(@index==@data.length)
 				if(@after==nil)
 					break
 				end
