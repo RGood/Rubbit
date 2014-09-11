@@ -480,6 +480,10 @@ class ContentGenerator
 	end
 end
 
+# == Rubbit Object
+#
+# Object that represents an individual comment
+#
 class Comment
 	def initialize(json)
 		if(json['kind']=='t1')
@@ -503,18 +507,42 @@ class Comment
 		end
 	end
 
+	# ==== Description
+	#
+	# Submits a reply to a comment.
+	#
+	# ==== Attributes
+	#
+	# * +text+ - The body of the response
+	#
 	def reply(text)
 		Rubbit_Poster.instance.comment(@name,text)
 	end
 
+	# ==== Description
+	#
+	# Deletes this comment. Only works if the comment was made by you.
+	#
 	def delete
 		Rubbit_Poster.instance.delete(@name)
 	end
 
+	# ==== Description
+	#
+	# Modifies the text of this comment. Only works if the comment was made by you.
+	#
+	# ==== Attributes
+	#
+	# * +text+ - The new comment body.
+	#
 	def edit(text)
 		Rubbit_Poster.instance.edit(@name,text)
 	end
 
+	# ==== Description
+	#
+	# No longer shows the comment to you on Reddit.
+	#
 	def hide
 		Rubbit_Poster.instance.hide(@name)
 	end
