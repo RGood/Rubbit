@@ -548,6 +548,10 @@ class Comment
 	end
 end
 
+# == Rubbit Object
+#
+# Object representing a Reddit Post
+#
 class Post
 	@comments = nil
 	def initialize(json)
@@ -560,10 +564,23 @@ class Post
 			end
 		end
 	end
+
+	# ==== Description
+	#
+	# Makes a reply to a post
+	#
+	# ==== Attributes
+	#
+	# * +text+ - The new comment body.
+	#
 	def reply(text)
 		return Rubbit_Poster.instance.comment(@name,text)
 	end
 
+	# ==== Description
+	#
+	# Retrieves the comments of a post in a list tree.
+	#
 	def replies
 		if(@comments==nil)
 			@comments = Rubbit_Object_Builder.instance.get_comments('http://www.reddit.com'+@permalink).children
@@ -571,18 +588,38 @@ class Post
 		return @comments
 	end
 
+	# ==== Description
+	#
+	# Deletes this post. Only works if you made the post.
+	#
 	def delete
 		Rubbit_Poster.instance.delete(@name)
 	end
 
+	# ==== Description
+	#
+	# Modifies the text of this post. Only works if the post was made by you and is a self post.
+	#
+	# ==== Attributes
+	#
+	# * +text+ - The new post body.
+	#
 	def edit(text)
 		Rubbit_Poster.instance.edit(@name,text)
 	end
 
+	# ==== Description
+	#
+	# Hides the post and no longer displays it when retrieving Reddit data
+	#
 	def hide
 		Rubbit_Poster.instance.hide(@name)
 	end
 
+	# ==== Description
+	#
+	# Marks a post as NSFW. Only works if you made the post or are a moderator of the subreddit it is in.
+	#
 	def mark_nsfw
 		Rubbit_Poster.instance.mark_nsfw(@name)
 	end
