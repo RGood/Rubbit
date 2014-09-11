@@ -40,7 +40,7 @@ class Subreddit
 		return Rubbit_Poster.instance.submit(@display_name,title,url,text,kind,resubmit,save,sendreplies)
 	end
 
-	def submit_text(title,text=nil,save=false,sendreplies=true)
+	def submit_self(title,text=nil,save=false,sendreplies=true)
 		return submit(title,nil,text,'self',false,save,sendreplies)
 	end
 
