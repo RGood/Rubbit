@@ -625,6 +625,10 @@ class Post
 	end
 end
 
+# == Rubbit Object
+#
+# Object that represents a Personal Message
+#
 class Message
 	def initialize(json)
 		if(json['kind']=='t4')
@@ -636,6 +640,14 @@ class Message
 		end
 	end
 
+	# ==== Description
+	#
+	# Responds to an inbox message.
+	#
+	# ==== Attributes
+	#
+	# * +text+ - The new message body.
+	#
 	def reply(text)
 		Rubbit_Poster.instance.comment(text,@name)
 	end
