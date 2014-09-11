@@ -1,14 +1,16 @@
 require 'Rubbit/Reddit_Net_Wrapper'
 require 'Rubbit/Rubbit_Exceptions'
 
-# == Subreddit
+# == Rubbit Object
+#
 # Object Representing a Subreddit.
+#
 class Subreddit
 	def initialize(json)
 		if(json['kind']=='t5')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_accessor(k)}
+				self.class.module_eval {attr_reader(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -250,18 +252,24 @@ class Subreddit
 	end
 end
 
+# == Rubbit Object
+#
+# Object Representing a Redditor.
+# If the requested Redditor is logged in, this object also contains a modhash.
+# If obtained from a subreddit list, this object will need to be rebuilt using the rebuild function
+#
 class Redditor
 	def initialize(json)
 		if(json['kind']=='t2')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_accessor(k)}
+				self.class.module_eval {attr_reader(k)}
 				self.send("#{k}=",data[k])
 			end
 		elsif(json['id'][0..2]=='t2_')
 			data = json
 			data.each_key do |k|
-				self.class.module_eval {attr_accessor(k)}
+				self.class.module_eval {attr_reader(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -282,7 +290,7 @@ class Redditor
 	def rebuild
 		rebuilt_user = Rubbit_Object_Builder.instance.build_user(@name)
 		rebuilt_user.instance_variables.each do |attr_name|
-			self.class.module_eval{attr_accessor(attr_name[1..-1])}
+			self.class.module_eval{attr_reader(attr_name[1..-1])}
 			self.send("#{attr_name[1..-1]}=",rebuilt_user.instance_variable_get(attr_name))
 		end
 	end
@@ -399,7 +407,7 @@ class Comment
 		if(json['kind']=='t1')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_accessor(k)}
+				self.class.module_eval {attr_reader(k)}
 				self.send("#{k}=",data[k])
 			end
 			children = []
@@ -441,7 +449,7 @@ class Post
 		if(json['kind']=='t3')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_accessor(k)}
+				self.class.module_eval {attr_reader(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -479,7 +487,7 @@ class Message
 		if(json['kind']=='t4')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_accessor(k)}
+				self.class.module_eval {attr_reader(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -496,7 +504,7 @@ class Listing
 		if(json['kind']=='Listing')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_accessor(k)}
+				self.class.module_eval {attr_reader(k)}
 				self.send("#{k}=",data[k])
 			end
 			children_objects = []
