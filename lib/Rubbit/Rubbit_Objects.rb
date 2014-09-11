@@ -275,18 +275,49 @@ class Redditor
 		end
 	end
 
+	# ==== Description
+	#
+	# Function for getting user overview content from a profile, including both comments and posts
+	#
+	# ==== Attributes
+	#
+	# * +limit+ - Maximum entries that the ContentGenerator can contain
+	# * +sort+ - Sort order by which the content is returned
+	#
 	def get_overview(limit=100,sort='new')
 		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/.json?sort='+sort,limit)
 	end
 
+	# ==== Description
+	#
+	# Function for getting user comment from a profile
+	#
+	# ==== Attributes
+	#
+	# * +limit+ - Maximum entries that the ContentGenerator can contain
+	# * +sort+ - Sort order by which the content is returned
+	#
 	def get_comments(limit=100,sort='new')
 		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/comments.json?sort='+sort,limit)
 	end
 
+	# ==== Description
+	#
+	# Function for getting user posts from a profile
+	#
+	# ==== Attributes
+	#
+	# * +limit+ - Maximum entries that the ContentGenerator can contain
+	# * +sort+ - Sort order by which the content is returned
+	#
 	def get_submitted(limit=100,sort='new')
 		return ContentGenerator.new('http://www.reddit.com/user/'+@name.to_s+'/submitted.json?sort='+sort,limit)
 	end
 
+	# ==== Description
+	#
+	# Function for rebuilding user object using data from their profile page
+	#
 	def rebuild
 		rebuilt_user = Rubbit_Object_Builder.instance.build_user(@name)
 		rebuilt_user.instance_variables.each do |attr_name|
