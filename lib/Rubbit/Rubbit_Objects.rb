@@ -327,6 +327,10 @@ class Redditor
 	end
 end
 
+# == Rubbit Object
+#
+# Enumerable object that allows a user to iterate over data sets
+#
 class ContentGenerator
 	include Enumerable
 	@limit = nil
@@ -336,6 +340,17 @@ class ContentGenerator
 	@after = nil
 	@modhash = nil
 	@index
+
+	# ==== Description
+	#
+	# Initializes a ContentGenerator Object
+	#
+	# ==== Attributes
+	#
+	# * +source+ - *Required.* Link to the .json page for the content
+	# * +limit+ - Maximum number of entries the ContentGenerator will load. *nil* for no limit.
+	# * +after+ - ID of entry to load content after.
+	#
 	def initialize(source,limit=100,after='')
 		@source = source
 		@limit = limit
@@ -345,6 +360,10 @@ class ContentGenerator
 		@index = 0
 	end
 
+	# ==== Description
+	#
+	# Iterates over the content from a specific source until there is no content left or until a limit is reached
+	#
 	def each
 		if(@data.length==0)
 			if(@limit!=nil)
@@ -387,10 +406,22 @@ class ContentGenerator
 		end
 	end
 
-	def [](i)
-		return @data[i]
+	# ==== Description
+	#
+	# Returns an object in the ContentGenerator at a particular index. Only works after it has been iterated through and loaded.
+	#
+	# ==== Attributes
+	#
+	# * +index+ - The index of the object in the ContentGenerator that will be returned.
+	#
+	def [](index)
+		return @data[index]
 	end
 
+	# ==== Description
+	#
+	# Returns the next object in the ContentGenerator. If none is loaded, it will try to load more, until a limit is reached.
+	#
 	def next
 		if(@index>=@data.length)
 			if(@limit!=nil)
@@ -415,6 +446,10 @@ class ContentGenerator
 		return to_return
 	end
 
+	# ==== Description
+	#
+	# Returns the previous object in the ContentGenerator. If the index is at 0, nil is returned
+	#
 	def prev
 		if(@index>1)
 			@index-=1
@@ -424,10 +459,22 @@ class ContentGenerator
 		end
 	end
 
-	def reset_generator(i=0)
-		@index=i
+	# ==== Description
+	#
+	# Resets the index of the current entry in ContentGenerator
+	#
+	# ==== Attributes
+	#
+	# * +index+ - The index that the ContentGenerator will be set to. Defaults to 0.
+	#
+	def reset_generator(index=0)
+		@index=index
 	end
 
+	# ==== Description
+	#
+	# Returns the length of data already loaded into the ContentGenerator.
+	#
 	def length
 		return @data.length
 	end
