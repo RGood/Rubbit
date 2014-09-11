@@ -28,7 +28,6 @@ class Rubbit_Object_Builder
 
 	def build_subreddit(display_name)
 		response = Reddit_Net_Wrapper.instance.make_request('get','http://www.reddit.com/r/'+display_name.to_s+"/about.json",{})
-		puts response.code
 		if(response.code=='200')
 			return Subreddit.new(JSON.parse(response.body))
 		elsif(response.code=='403')
@@ -278,7 +277,6 @@ class Rubbit_Poster
 	def get_modhash
 		response = Reddit_Net_Wrapper.instance.make_request('get','http://www.reddit.com/user/'+@logged_in_user+'/about.json',{})
 		data = JSON.parse(response.body)
-		puts data
 		return data['data']['modhash']
 	end
 

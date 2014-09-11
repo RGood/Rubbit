@@ -1,6 +1,8 @@
 require 'Rubbit/Reddit_Net_Wrapper'
 require 'Rubbit/Rubbit_Exceptions'
 
+# == Subreddit
+# Object Representing a Subreddit.
 class Subreddit
 	def initialize(json)
 		if(json['kind']=='t5')
@@ -12,74 +14,237 @@ class Subreddit
 		end
 	end
 
+	# ==== Description
+	# 
+	# Returns enumerable ContentGenerator object representing the new queue
+	# 
+	# ==== Attributes
+	# 
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_new(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/new.json',limit)
 	end
 
+	# ==== Description
+	# 
+	# Returns enumerable ContentGenerator object representing the hot queue
+	# 
+	# ==== Attributes
+	# 
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_hot(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/hot.json',limit)
 	end
 
+	# ==== Description
+	# 
+	# Returns enumerable ContentGenerator object representing the top queue
+	# 
+	# ==== Attributes
+	# 
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_top(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/top.json',limit)
 	end
 
+	# ==== Description
+	# 
+	# Returns enumerable ContentGenerator object representing the gilded queue
+	# 
+	# ==== Attributes
+	# 
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_gilded(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/gilded.json',limit)
 	end
 
+	# ==== Description
+	# 
+	# Returns enumerable ContentGenerator object representing the rising queue
+	# 
+	# ==== Attributes
+	# 
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_rising(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/rising.json',limit)
 	end
 
+	# ==== Description
+	# 
+	# Returns enumerable ContentGenerator object representing the controversial queue
+	# 
+	# ==== Attributes
+	# 
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_controversial(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/controversial.json',limit)
 	end
 
+	
+	# ==== Description
+	#
+	# General function for submitting content to a subreddit
+	#
+	# ==== Attributes
+	#
+	# * +title+ - *REQUIRED.* Title for post. Cannot be empty or the function will not work.
+	# * +url+ - The url for the post. Will only be used if kind is "link"
+	# * +text+ - The text for the post. Will only be used if kind is "self"
+	# * +kind+ - Determines type of post. Either link or self.
+	# * +resubmit+ - If true, will make post to subreddit regardless if it is a repost
+	# * +save+ - Will save the post in user's "saved" links if true
+	# * +sendreplies+ - Will send replies to post to user's inbox by default, unless this is set to false
+	#
 	def submit(title,url=nil,text=nil,kind='self',resubmit=false,save=false,sendreplies=true)
 		return Rubbit_Poster.instance.submit(@display_name,title,url,text,kind,resubmit,save,sendreplies)
 	end
 
+	# ==== Description
+	#
+	# Function for submitting self posts to a subreddit.
+	#
+	# ==== Attributes
+	#
+	# * +title+ - *REQUIRED.* Title for post. Cannot be empty or the function will not work.
+	# * +text+ - The text for the post.
+	# * +save+ - Will save the post in user's "saved" links if true
+	# * +sendreplies+ - Will send replies to post to user's inbox by default, unless this is set to false
+	#
 	def submit_self(title,text=nil,save=false,sendreplies=true)
 		return submit(title,nil,text,'self',false,save,sendreplies)
 	end
 
-	def submit_link(title,url,save=false,sendreplies=true)
-		return submit(title,url,nil,'link',false,save,sendreplies)
+	# ==== Description
+	#
+	# Function for submitting link posts to a subreddit.
+	#
+	# ==== Attributes
+	#
+	# * +title+ - *REQUIRED.* Title for post. Cannot be empty or the function will not work.
+	# * +url+ - The url for the post.
+	# * +resubmit+ - If true, will make post to subreddit regardless if it is a repost
+	# * +save+ - Will save the post in user's "saved" links if true
+	# * +sendreplies+ - Will send replies to post to user's inbox by default, unless this is set to false
+	#
+	def submit_link(title,url,resubmit=false,save=false,sendreplies=true)
+		return submit(title,url,nil,'link',resubmit,save,sendreplies)
 	end
 
+	# ==== Description
+	#
+	# Returns enumerable ContentGenerator object representing approved contributors to a subreddit
+	#
+	# ==== Attributes
+	#
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_contributors(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/contributors.json',limit)
 	end
 
+	
+	# ==== Description
+	#
+	# Returns enumerable ContentGenerator object representing banned users of a subreddit. Will only work if subreddit moderator.
+	#
+	# ==== Attributes
+	#
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_banned(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/banned.json',limit)
 	end
 
+	
+	# ==== Description
+	#
+	# Returns enumerable ContentGenerator object representing moderators of a subreddit. Will only work if subreddit is viewable.
+	#
+	# ==== Attributes
+	#
+	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
+	#
 	def get_moderators(limit=100)
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/moderators.json',limit)
 	end
 
+	
+	# ==== Description
+	#
+	# Function for adding moderator to a subreddit. Only works if subreddit moderator.
+	#
+	# ==== Attributes
+	#
+	# * +name+ - name of user to add as a moderator
+	# * +permissions+ - string containing permissions to give this user
+	#
 	def add_moderator(name,permissions)
 		return Rubbit_Poster.instance.friend('moderator_invite',name,@display_name,permissions)
 	end
 
+	# ==== Description
+	#
+	# Function for adding contributor to a subreddit. Only works if subreddit moderator.
+	# ==== Attributes
+	#
+	# * +name+ - name of user to add as a contributor
+	#
 	def add_contributor(name)
 		return Rubbit_Poster.instance.friend('contributor',name,@display_name)
 	end
 
+	# ==== Description
+	#
+	# Function for banning a user from a subreddit. Only works if subreddit moderator.
+	#
+	# ==== Attributes
+	#
+	# * +name+ - name of user to ban
+	# * +note+ - note for the ban
+	# * +duration+ - length of period they are banned for, in days. Send *nil* for permanent
+	#
 	def ban(name,note,duration)
 		return Rubbit_Poster.instance.friend('banned',name,@display_name,note,duration)
 	end
 
+	# ==== Description
+	#
+	# Function for removing a moderator from a subreddit. Only works if subreddit moderator and has higher permissions than mod to remove.
+	#
+	# ==== Attributes
+	#
+	# * +name+ - name of moderator to remove
+	#
 	def remove_moderator(name)
 		return Rubbit_Poster.instance.unfriend('moderator',name,@display_name)
 	end
 
+	# ==== Description
+	#
+	# Function for removing a contributor from a subreddit. Only works if subreddit moderator.
+	#
+	# ==== Attributes
+	#
+	# * +name+ - name of contributor to remove
+	#
 	def remove_contributor(name)
 		return Rubbit_Poster.instance.unfriend('contributor',name,@display_name)
 	end
 
+	# ==== Description
+	#
+	# Function for unbanning a user from a subreddit. Only works if subreddit moderator.
+	#
+	# ==== Attributes
+	#
+	# * +name+ - name of user to unban
+	#
 	def unban(name)
 		return Rubbit_Poster.instance.unfriend('ban',name,@display_name)
 	end
