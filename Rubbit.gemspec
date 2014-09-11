@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'Rubbit'
-  s.version       = '0.1.0'
+  s.version       = '0.2.1'
   s.date          = '2014-08-13'
   s.summary       = 'Ruby API Wrapper for Reddit'
   s.description   = 'A simple Ruby-based Reddit API Wrapper'
