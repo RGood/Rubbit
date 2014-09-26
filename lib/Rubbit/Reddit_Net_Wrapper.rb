@@ -29,6 +29,7 @@ class Reddit_Net_Wrapper
 
 	def set_reset_period(period=60)
 		if(period%2!=0 or period>60 or period<2)
+			print('Reset period must be an even integer between 2 and 60')
 			return false
 		else
 			@reset_timer = period

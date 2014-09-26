@@ -2,9 +2,20 @@ require 'Rubbit/Rubbit_Objects'
 require 'Rubbit/Rubbit_Construction_Layer'
 require 'io/console'
 
+# == Rubbit Client
+#
+# Contains highest level Rubbit functionality
+#
 class Rubbit
 	attr_accessor :client_name, :object_builder, :rubbit_poster, :me
 
+	# ==== Description
+	#
+	# Initialize the Rubbit client with an ID that's added to the user agent
+	#
+	# ==== Attributes
+	#
+	# * +name+ - Attribute that identifies the bot using Rubbit. Is added to the user-agent.
 	def initialize(name)
 		@client_name = name
 		@object_builder = Rubbit_Object_Builder.instance(name)
@@ -12,18 +23,49 @@ class Rubbit
 		@me = nil
 	end
 
+	# ==== Description
+	#
+	# Gets a Subreddit object, created by subreddit name
+	#
+	# ==== Attributes
+	#
+	# * +display_name+ - Display name of the subreddit a user wishes to create an object representation for
 	def get_subreddit(display_name)
 		return @object_builder.build_subreddit(display_name)
 	end
 
+	# ==== Description
+	#
+	# Gets a Redditor object, created by username
+	#
+	# ==== Attributes
+	#
+	# * +user+ - That Redditor's username
 	def get_redditor(user)
 		return @object_builder.build_user(user)
 	end
 
+	# ==== Description
+	#
+	# Gets a Subreddit object, created by subreddit name
+	#
+	# ==== Attributes
+	#
+	# * +display_name+ - Display name of the subreddit a user wishes to create an object representation for
 	def set_request_period(period)
 		@object_builder.set_request_period(period)
 	end
 
+	# ==== Description
+	#
+	# Login to Reddit and create a session.
+	# User and passwd are *not* required. This function will prompt the user for missing information at runtime.
+	#
+	# ==== Attributes
+	#
+	# * +user+ - Username that you wish to log in with
+	# * +passwd+ - Password required to log in with that user
+	#
 	def login(user=nil,passwd=nil)
 		if(user==nil)
 			print('Enter username: ')
@@ -38,17 +80,35 @@ class Rubbit
 		return @me
 	end
 
-	def clear_session(curpass=nil,uh=nil)
+	# ==== Description
+	#
+	# Clears the current session.
+	#
+	# ==== Attributes
+	#
+	# * +curpass+ - Password required to log in with that user
+	#
+	def clear_session(curpass=nil)
 		if(@me==nil)
 			print('Not logged in. No session to clear')
 		elsif(curpass==nil)
 			print('Enter password for '+user.to_s+': ')
 			passwd = STDIN.noecho(&:gets).chomp
 		end
-		return @rubbit_poster.clear_sessions(curpass,uh)
+		return @rubbit_poster.clear_sessions(curpass)
 	end
 
-	def delete_user(user=nil,passwd=nil,message="",uh=nil)
+	# ==== Description
+	#
+	# Deletes desired user. Requires auth info for that user.
+	#
+	# ==== Attributes
+	#
+	# * +user+ - Username of account you wish to delete.
+	# * +passwd+ - Password required to log in with that user
+	# * +message+ - Reason for deleting account.
+	#
+	def delete_user(user=nil,passwd=nil,message="")
 		confirm = nil
 		if(user==nil)
 			print('Enter username: ')
@@ -71,7 +131,7 @@ class Rubbit
 			end
 		end
 
-		return @rubbit_poster.delete_user(user,passwd,confirm,message,@me.uh)
+		return @rubbit_poster.delete_user(user,passwd,confirm,message)
 	end
 
 	def get_me()

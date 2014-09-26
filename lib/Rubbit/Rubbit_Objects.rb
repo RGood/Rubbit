@@ -10,7 +10,7 @@ class Subreddit
 		if(json['kind']=='t5')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_reader(k)}
+				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -172,8 +172,8 @@ class Subreddit
 	#
 	# * +limit+ - Maximum entries that the returned ContentGenerator will hold. For no limit, use *nil*
 	#
-	def get_moderators(limit=100)
-		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/moderators.json',limit)
+	def get_moderators
+		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/moderators.json',nil)
 	end
 
 	
@@ -263,13 +263,13 @@ class Redditor
 		if(json['kind']=='t2')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_reader(k)}
+				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
 			end
 		elsif(json['id'][0..2]=='t2_')
 			data = json
 			data.each_key do |k|
-				self.class.module_eval {attr_reader(k)}
+				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -321,7 +321,7 @@ class Redditor
 	def rebuild
 		rebuilt_user = Rubbit_Object_Builder.instance.build_user(@name)
 		rebuilt_user.instance_variables.each do |attr_name|
-			self.class.module_eval{attr_reader(attr_name[1..-1])}
+			self.class.module_eval{attr_accessor(attr_name[1..-1])}
 			self.send("#{attr_name[1..-1]}=",rebuilt_user.instance_variable_get(attr_name))
 		end
 	end
@@ -340,6 +340,7 @@ class ContentGenerator
 	@after = nil
 	@modhash = nil
 	@index
+	@limit_param
 
 	# ==== Description
 	#
@@ -358,6 +359,11 @@ class ContentGenerator
 		@data = []
 		@after = after
 		@index = 0
+		if(@source.include?('?'))
+			@limit_param = '&limit='
+		else
+			@limit_param = '?limit='
+		end
 	end
 
 	# ==== Description
@@ -368,13 +374,13 @@ class ContentGenerator
 		if(@data.length==0)
 			if(@limit!=nil)
 				if(@limit-@count>0)
-					listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
+					listing = Rubbit_Object_Builder.instance.build_listing(@source+@limit_param+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
 					@after = listing.after
 					@data += listing.children
 					@count += listing.children.length
 				end
 			else
-				listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+100.to_s+"&after="+@after+"&count="+@count.to_s)
+				listing = Rubbit_Object_Builder.instance.build_listing(@source+@limit_param+100.to_s+"&after="+@after+"&count="+@count.to_s)
 				@after = listing.after
 				@data += listing.children
 				@count+= listing.children.length
@@ -390,14 +396,14 @@ class ContentGenerator
 				end
 				if(@limit!=nil)
 					if(@limit-@count>0)
-						listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
+						listing = Rubbit_Object_Builder.instance.build_listing(@source+@limit_param+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
 						@after = listing.after
 						@data += listing.children
 						@count += listing.children.length
 					end
 				else
-					listing = Rubbit_Object_Builder.instance.build_listing(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
-					puts(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
+					listing = Rubbit_Object_Builder.instance.build_listing(@source+@limit_param+100.to_s+"&after="+@after+"&count="+@count.to_s)
+					puts(@source+@limit_param+100.to_s+"&after="+@after+"&count="+@count.to_s)
 					@after = listing.after
 					@data += listing.children
 					@count += listing.children.length
@@ -489,7 +495,7 @@ class Comment
 		if(json['kind']=='t1')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_reader(k)}
+				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
 			end
 			children = []
@@ -559,7 +565,7 @@ class Post
 		if(json['kind']=='t3')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_reader(k)}
+				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -634,7 +640,7 @@ class Message
 		if(json['kind']=='t4')
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_reader(k)}
+				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
 			end
 		end
@@ -656,10 +662,11 @@ end
 class Listing
 	@after = nil
 	def initialize(json)
-		if(json['kind']=='Listing')
+		if(json['kind']=='Listing' or json['kind']=='UserList')
+			@after = nil
 			data = json['data']
 			data.each_key do |k|
-				self.class.module_eval {attr_reader(k)}
+				self.class.module_eval {attr_accessor(k)}
 				self.send("#{k}=",data[k])
 			end
 			children_objects = []

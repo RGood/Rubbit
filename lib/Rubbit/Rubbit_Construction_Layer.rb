@@ -126,7 +126,7 @@ class Rubbit_Poster
 		return response.body
 	end
 
-	def delete_user(user,passwd,message,confirm)
+	def delete_user(user,passwd,message)
 		params = {}
 		params['api_type']='json'
 		params['user']=user
