@@ -659,6 +659,49 @@ class Message
 	end
 end
 
+# == Rubbit Object
+#
+# Object that represents a Live Thread
+#
+class Live_Thread
+	@id = nil
+	def initialize(id)
+		@id = id
+	end
+
+	def get_updates
+		return ContentGenerator.new('http://www.reddit.com/live/'+@id+'.json',limit)
+	end
+
+	def make_update(body)
+		return Rubbit_Poster.instance.update_live(@id,body)
+	end
+end
+
+# == Rubbit Object
+#
+# Object that represents an Update in a Live Thread
+#
+class Live_Update
+	def initialize(json)
+		if(json['kind']=='LiveUpdate')
+			data = json['data']
+			data.each_key do |k|
+				self.class.module_eval {attr_accessor(k)}
+				self.send("#{k}=",data[k])
+			end
+		end
+	end
+
+	def strike
+
+	end
+
+	def delete
+
+	end
+end
+
 class Listing
 	@after = nil
 	def initialize(json)
@@ -686,6 +729,8 @@ class Listing
 					children_objects += [Subreddit.new(c)]
 				elsif(c['kind'] == 'Listing')
 					children_objects += [Listing.new(c)]
+				elsif(c['kind'] == 'LiveUpdate')
+					children_objects += [Live_Update.new(c)]
 				end
 			end
 			@children = children_objects

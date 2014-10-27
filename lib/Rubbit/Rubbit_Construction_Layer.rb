@@ -226,6 +226,32 @@ class Rubbit_Poster
 		return response.body
 	end
 
+	def create_live(title,description='',nsfw=false)
+		params = {}
+
+		params['api_type']='json'
+		params['title']=title
+		params['description']=description
+		params['nsfw']=nsfw
+		params['uh']=get_modhash
+
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/live/create',params)
+
+		return Live_Thread.new(JSON.parse(response.body)['json']['data']['id'])
+	end
+
+	def update_live(id,body)
+		params = {}
+
+		params['api_type']='json'
+		params['body']=body
+		params['uh']=get_modhash
+
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/live/'+id+'/update',params)
+
+		return JSON.parse(response.body)
+	end
+
 	def friend(type,user,container,info=nil,duration=nil)
 		params = {}
 		params['api_type']='json'
@@ -275,6 +301,9 @@ class Rubbit_Poster
 	end
 
 	def get_modhash
+		if(@logged_in_user==nil)
+			raise LoginException, 'Not logged in.'
+		end
 		response = Reddit_Net_Wrapper.instance.make_request('get','http://www.reddit.com/user/'+@logged_in_user+'/about.json',{})
 		data = JSON.parse(response.body)
 		return data['data']['modhash']

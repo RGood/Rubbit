@@ -138,6 +138,10 @@ class Rubbit
 		return @object_builder.build_user(@me.name)
 	end
 
+	def create_live(title,description='',nsfw=false)
+		return @rubbit_poster.create_live(title,description,nsfw)
+	end
+
 	def update(curpass=nil,email=nil,newpass=nil,verify=nil,verpass=nil)
 		if(@me==nil)
 			print('Not logged in. Cannot update password or email')
