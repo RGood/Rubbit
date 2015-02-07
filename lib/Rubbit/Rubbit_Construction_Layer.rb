@@ -85,6 +85,18 @@ class Rubbit_Poster
 		Reddit_Net_Wrapper.instance(net_name)
 		@logged_in_user = nil
 	end
+	
+	def set_subreddit_sticky(post_id,state)
+		params = {}
+		params['api_type']='json'
+		params['id']=post_id
+		params['state']=state
+		params['uh']=get_modhash
+		
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/set_subreddit_sticky/',params)
+		
+		return JSON.parse(response.body)
+	end
 
 	def self.instance(name=nil)
 		if(@@instance==nil)
@@ -123,7 +135,7 @@ class Rubbit_Poster
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/clear_sessions/',params)
 
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def delete_user(user,passwd,message)
@@ -135,7 +147,7 @@ class Rubbit_Poster
 		params['uh']=get_modhash
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/delete_user/',params)
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def update(email,newpass,curpass,verify,verpass)
@@ -149,7 +161,7 @@ class Rubbit_Poster
 		params['uh']=get_modhash
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/update/',params)
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def submit(sr,title,url=nil,text=nil,kind='self',resubmit=nil,save=false,sendreplies=true)
@@ -174,14 +186,14 @@ class Rubbit_Poster
 
 	def comment(parent,text)
 		params = {}
-		params['text']=text
+		params['api_type']='json'
 		params['thing_id']=parent
+		params['text']=text
 		params['uh']=get_modhash
-		params['renderstylel']='html'
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/comment',params)
 
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def hide(id)
@@ -191,7 +203,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/hide',params)
 
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def delete(id)
@@ -201,7 +213,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/del',params)
 
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def edit(id,text)
@@ -213,7 +225,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/editusertext',params)
 
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def mark_nsfw(id)
@@ -223,7 +235,7 @@ class Rubbit_Poster
 		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/marknsfw',params)
 
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def create_live(title,description='',nsfw=false)
@@ -257,7 +269,7 @@ class Rubbit_Poster
 		params['api_type']='json'
 		params['type']=type
 		params['name']=user
-		params['modhash']=get_modhash
+		params['uh']=get_modhash
 		case type
 		when 'friend'
 			params['note']=info
@@ -270,6 +282,7 @@ class Rubbit_Poster
 			params['permissions']=info
 		when 'contributor'
 			params['container']=container
+			params['r']=info
 		when 'banned'
 			params['container']=container
 			params['note']=info
@@ -281,10 +294,10 @@ class Rubbit_Poster
 		when 'wikicontributor'
 			params['container']=container
 		end
-
+		
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/friend',params)
 
-		return response.body
+		return JSON.parse(response.body)
 	end
 
 	def unfriend(type,user,container)
@@ -292,11 +305,27 @@ class Rubbit_Poster
 		params['api_type']='json'
 		params['type']=type
 		params['name']=user
-		params['modhash']=get_modhash
+		params['uh']=get_modhash
 		params['container']=container
 
 		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/unfriend',params)
 
+		return response.body
+	end
+	
+	def create_subreddit(name,other_params)
+		params = {}
+		params['link_type']='any'
+		params['wikimode']='disabled'
+		params['type'] = 'public'
+		params['name'] = name
+		other_params.keys.each do |k|
+			params[k] = other_params[k]
+		end
+		params['uh']=get_modhash
+		
+		response = Reddit_Net_Wrapper.instance.make_request('post','http://www.reddit.com/api/site_admin',params)
+		
 		return response.body
 	end
 

@@ -141,6 +141,10 @@ class Rubbit
 	def create_live(title,description='',nsfw=false)
 		return @rubbit_poster.create_live(title,description,nsfw)
 	end
+	
+	def create_subreddit(name,other_params)
+		return @rubbit_poster.create_subreddit(name,other_params)
+	end
 
 	def update(curpass=nil,email=nil,newpass=nil,verify=nil,verpass=nil)
 		if(@me==nil)

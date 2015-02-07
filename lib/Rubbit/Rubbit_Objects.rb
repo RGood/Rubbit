@@ -175,7 +175,16 @@ class Subreddit
 	def get_moderators
 		return ContentGenerator.new('http://www.reddit.com/r/'+@display_name.to_s+'/about/moderators.json',nil)
 	end
+	
+	def get_modmail(limit=100)
+		return ContentGenerator.new("http://www.reddit.com/r/#{@display_name.to_s}/about/message/inbox/.json",limit)
+	end
 
+	def is_contributor?(name)
+		contrib_check = ContentGenerator.new("http://www.reddit.com/r/#{@display_name.to_s}/about/contributors/.json?user=#{name}")
+		user = contrib_check.next
+		return user != nil
+	end
 	
 	# ==== Description
 	#
@@ -198,7 +207,7 @@ class Subreddit
 	# * +name+ - name of user to add as a contributor
 	#
 	def add_contributor(name)
-		return Rubbit_Poster.instance.friend('contributor',name,@display_name)
+		return Rubbit_Poster.instance.friend('contributor',name,@name,@display_name)
 	end
 
 	# ==== Description
@@ -403,7 +412,6 @@ class ContentGenerator
 					end
 				else
 					listing = Rubbit_Object_Builder.instance.build_listing(@source+@limit_param+100.to_s+"&after="+@after+"&count="+@count.to_s)
-					puts(@source+@limit_param+100.to_s+"&after="+@after+"&count="+@count.to_s)
 					@after = listing.after
 					@data += listing.children
 					@count += listing.children.length
@@ -432,14 +440,13 @@ class ContentGenerator
 		if(@index>=@data.length)
 			if(@limit!=nil)
 				if(@limit-@count>0)
-					listing = Rubbit_Object_Builder.instance.build_listing(@source+'?limit='+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
+					listing = Rubbit_Object_Builder.instance.build_listing(@source+@limit_param+[@limit-@count,100].min.to_s+"&after="+@after+"&count="+@count.to_s)
 					@after = listing.after
 					@data += listing.children
 					@count += listing.children.length
 				end
 			else
-				listing = Rubbit_Object_Builder.instance.build_listing(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
-				puts(@source+"?limit="+100.to_s+"&after="+@after+"&count="+@count.to_s)
+				listing = Rubbit_Object_Builder.instance.build_listing(@source+@limit_param+100.to_s+"&after="+@after+"&count="+@count.to_s)
 				@after = listing.after
 				@data += listing.children
 				@count += listing.children.length
@@ -582,14 +589,18 @@ class Post
 	def reply(text)
 		return Rubbit_Poster.instance.comment(@name,text)
 	end
+	
+	def set_as_sticky(state)
+		return Rubbit_Poster.instance.set_subreddit_sticky(@name,state)
+	end
 
 	# ==== Description
 	#
 	# Retrieves the comments of a post in a list tree.
 	#
-	def replies
+	def replies(limit=100)
 		if(@comments==nil)
-			@comments = Rubbit_Object_Builder.instance.get_comments('http://www.reddit.com'+@permalink).children
+			@comments = Rubbit_Object_Builder.instance.get_comments("http://www.reddit.com#{permalink}.json",limit)
 		end
 		return @comments
 	end
@@ -655,7 +666,7 @@ class Message
 	# * +text+ - The new message body.
 	#
 	def reply(text)
-		Rubbit_Poster.instance.comment(text,@name)
+		return Rubbit_Poster.instance.comment(@name,text)
 	end
 end
 
